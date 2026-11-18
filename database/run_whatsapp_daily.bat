@@ -1,0 +1,2 @@
+@echo off
+"C:\xampp\php\php.exe" "C:\xampp\htdocs\smartpartman-baru\smartpartman\database\whatsapp_scheduler.php" daily >> "C:\xampp\htdocs\smartpartman-baru\smartpartman\storage\logs\whatsapp_scheduler.log" 2>&1

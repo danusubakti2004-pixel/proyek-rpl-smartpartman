@@ -1,0 +1,6 @@
+# AI Stock Prediction — Fase 7
+# Target Python: 3.12 (lihat .env: PYTHON_ARGS=-3.12)
+# Instal: py -3.12 -m pip install -r python\requirements.txt
+pandas>=2.1,<4
+scikit-learn>=1.3,<2
+numpy>=1.26,<3

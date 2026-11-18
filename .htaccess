@@ -1,0 +1,24 @@
+# SmartPartMan — Konfigurasi Apache (XAMPP)
+# 1) Melindungi folder sensitif dari akses langsung.
+# 2) Mengarahkan semua request yang bukan file aset ke front controller (index.php).
+
+Options -Indexes
+RewriteEngine On
+
+# Tolak akses langsung ke folder aplikasi/internal.
+RewriteRule ^(app|config|database|storage|tests|docs|python|routes)(/|$) - [F,L]
+
+# Tolak akses ke file tersembunyi (.env, .git, dll).
+RewriteRule ^\. - [F,L]
+
+# File aset yang nyata dilayani langsung oleh Apache.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Perlindungan tambahan untuk file dotfile (Apache 2.4).
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+</IfModule>

@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS whatsapp_user_preferences (
+    user_id INT UNSIGNED NOT NULL PRIMARY KEY,
+    is_enabled TINYINT(1) NOT NULL DEFAULT 1,
+    preferences_json TEXT NULL,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_wup_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+        ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

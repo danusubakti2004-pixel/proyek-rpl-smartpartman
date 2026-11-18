@@ -1,0 +1,85 @@
+# ============================================================
+# SmartPartMan — .gitignore
+# Jangan pernah mengunggah rahasia, data pengguna, atau backup.
+# ============================================================
+
+# --- Rahasia & konfigurasi lingkungan ---
+.env
+.env.*
+!.env.example
+.env.bak
+*.pem
+*.key
+*.p12
+*.crt
+*.secret
+
+# --- Dependency (bila kelak ditambahkan) ---
+/vendor/
+/node_modules/
+/composer.phar
+
+# --- Cache, sesi, dan runtime ---
+/storage/cache/
+/storage/sessions/
+/storage/framework/
+/storage/tmp/
+*.cache
+.phpunit.result.cache
+.php-cs-fixer.cache
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# --- Log ---
+/storage/logs/*
+!storage/logs/.gitkeep
+*.log
+
+# --- Unggahan pengguna & dokumen (data pribadi) ---
+/storage/private/
+/storage/private_uploads/*
+!storage/private_uploads/.gitkeep
+/storage/documents/*
+!storage/documents/.gitkeep
+
+# --- Backup database (JANGAN pernah masuk Git) ---
+/storage/backups/*
+!storage/backups/.gitkeep
+*.sql.gz
+*.dump
+*.backup
+
+# --- Hasil pengujian/cakupan lokal ---
+/coverage/
+/test-results/
+/tests/.tmp/
+/tests/*.local.php
+# Skrip sementara pembuat akun uji (jangan diunggah)
+/tests/*_tmp.php
+
+# --- Berkas sementara XAMPP / OS / editor ---
+*.tmp
+*.temp
+*.swp
+*~
+Thumbs.db
+Desktop.ini
+.DS_Store
+.idea/
+.vscode/
+!.vscode/extensions.json
+
+# --- Berkas sementara di root proyek (skrip probe lokal) ---
+/_*.php
+
+/storage/backups/
+/storage/logs/
+
+# Data dokumen dan unggahan pengguna
+/storage/documents/**
+!/storage/documents/.gitkeep
+
+/storage/private_uploads/**
+!/storage/private_uploads/.gitkeep

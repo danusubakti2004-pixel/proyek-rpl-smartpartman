@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: PHP 8.2 + MariaDB + Python
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      mariadb:
+        image: mariadb:10.6
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: smartpartman_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo_mysql, mbstring, curl, zip, xml, dom, fileinfo, gd
+          coverage: none
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: python/requirements.txt
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r python/requirements.txt
+
+      - name: Install MySQL client (backup/restore tests)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client || sudo apt-get install -y default-mysql-client
+          # Pastikan nama biner yang dipakai aplikasi tersedia (MariaDB/MySQL).
+          if ! command -v mysqldump >/dev/null 2>&1; then
+            sudo ln -sf "$(command -v mariadb-dump)" /usr/local/bin/mysqldump
+          fi
+          if ! command -v mysql >/dev/null 2>&1; then
+            sudo ln -sf "$(command -v mariadb)" /usr/local/bin/mysql
+          fi
+          command -v mysqldump
+          command -v mysql
+
+      - name: Prepare dummy .env for CI (bukan secret produksi)
+        run: |
+          set -euo pipefail
+          cp .env.example .env
+          APP_KEY_VALUE="$(php database/keygen.php)"
+          sed -i "s|^APP_ENV=.*|APP_ENV=testing|" .env
+          sed -i "s|^APP_DEBUG=.*|APP_DEBUG=true|" .env
+          sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY_VALUE}|" .env
+          sed -i "s|^APP_URL=.*|APP_URL=http://127.0.0.1:8080|" .env
+          sed -i "s|^DB_HOST=.*|DB_HOST=127.0.0.1|" .env
+          sed -i "s|^DB_PORT=.*|DB_PORT=3306|" .env
+          sed -i "s|^DB_NAME=.*|DB_NAME=smartpartman_ci|" .env
+          sed -i "s|^DB_USER=.*|DB_USER=root|" .env
+          sed -i "s|^DB_PASS=.*|DB_PASS=|" .env
+          sed -i "s|^DB_TEST_NAME=.*|DB_TEST_NAME=smartpartman_test|" .env
+          sed -i "s|^PHP_CLI_PATH=.*|PHP_CLI_PATH=$(command -v php)|" .env
+          sed -i "s|^PYTHON_PATH=.*|PYTHON_PATH=$(command -v python3)|" .env
+          sed -i "s|^PYTHON_ARGS=.*|PYTHON_ARGS=|" .env
+          sed -i "s|^MYSQLDUMP_PATH=.*|MYSQLDUMP_PATH=$(command -v mysqldump)|" .env
+          sed -i "s|^MYSQL_CLIENT_PATH=.*|MYSQL_CLIENT_PATH=$(command -v mysql)|" .env
+          sed -i "s|^GEMINI_API_KEY=.*|GEMINI_API_KEY=|" .env
+          echo "Konfigurasi CI siap (tanpa secret produksi)."
+
+      - name: PHP syntax check (php -l)
+        run: |
+          set -euo pipefail
+          find . -type f -name '*.php' \
+            -not -path './storage/*' \
+            -not -path './vendor/*' \
+            -print0 | while IFS= read -r -d '' file; do
+              php -l "$file" > /dev/null
+            done
+          echo "Semua file PHP lolos php -l."
+
+      - name: Run unit tests
+        run: php tests/run.php

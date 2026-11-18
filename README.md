@@ -185,7 +185,7 @@ Lakukan setelah database selesai dimigrasikan dan aplikasi dapat dibuka.
    ```
 
 3. **Buat akun Admin pertama** melalui halaman instalasi
-   `http://localhost/smartpartman/install`:
+   `http://localhost/smartpartman/smartpartman/install`:
    - Username: `demo_admin` (4–50 karakter, hanya huruf, angka, titik,
      garis bawah, atau tanda hubung).
    - Nama lengkap: minimal 3 karakter.
@@ -302,20 +302,26 @@ inventory utama tetap berjalan normal.
 
 ### 2. Menempatkan Folder Aplikasi ke `htdocs`
 
-1. Salin folder proyek `smartpartman` ke dalam direktori web XAMPP.
+1. Salin folder proyek `smartpartman` ke dalam direktori web XAMPP, di dalam
+   satu folder pembungkus bernama `smartpartman`.
 2. Pastikan struktur akhirnya menjadi:
 
    ```text
    C:\xampp\htdocs\smartpartman\
-   ├── index.php
-   ├── app\
-   ├── config\
-   ├── database\
-   └── ...
+   └── smartpartman\
+       ├── index.php
+       ├── app\
+       ├── config\
+       ├── database\
+       └── ...
    ```
 
 3. Jangan menempatkan seluruh isi proyek langsung di `htdocs` tanpa folder
    pembungkus, agar URL aplikasi tetap konsisten.
+4. URL aplikasi mengikuti kedalaman folder. Struktur di atas diakses sebagai
+   `http://localhost/smartpartman/smartpartman`. Segmen pertama adalah folder
+   pembungkus di `htdocs`, segmen kedua adalah folder proyek. Bila nama folder
+   diubah, sesuaikan kedua segmen URL dan nilai `APP_URL` pada `.env`.
 
 ### 3. Membuat Database
 
@@ -390,7 +396,7 @@ snapshot struktur tabel; migrasi tetap menjadi sumber utama pembaruan skema.
    APP_NAME="SmartPartMan"
    APP_ENV=local
    APP_DEBUG=true
-   APP_URL=http://localhost/smartpartman
+   APP_URL=http://localhost/smartpartman/smartpartman
    APP_TIMEZONE=Asia/Jakarta
    ```
 
@@ -406,13 +412,13 @@ snapshot struktur tabel; migrasi tetap menjadi sumber utama pembaruan skema.
 
 ### 8. Membuka Aplikasi melalui Browser
 
-1. Buka `http://localhost/smartpartman`.
+1. Buka `http://localhost/smartpartman/smartpartman`.
 2. Saat pertama kali dijalankan, halaman **Instalasi** muncul otomatis.
 3. Buat akun **Admin** pertama (password minimal 8 karakter).
 4. Setelah berhasil, halaman instalasi terkunci permanen.
 5. Login sebagai Admin, ganti password awal, lalu buat akun **Partman** dan
    **Kepala Bengkel** melalui menu **Pengguna**.
-6. Health check tersedia di `http://localhost/smartpartman/health`.
+6. Health check tersedia di `http://localhost/smartpartman/smartpartman/health`.
 
 ### 9. Menjalankan Fitur Python (Prediksi Stok)
 
@@ -507,8 +513,8 @@ DB_TEST_NAME=smartpartman_test
 
 ## Menjalankan Aplikasi
 
-- Web: `http://localhost/smartpartman`
-- Health check: `http://localhost/smartpartman/health`
+- Web: `http://localhost/smartpartman/smartpartman`
+- Health check: `http://localhost/smartpartman/smartpartman/health`
 - CLI scheduler WhatsApp:
 
   ```powershell
